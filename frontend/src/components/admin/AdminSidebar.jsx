@@ -17,21 +17,7 @@ const menuItems = [
     path: "/admin",
     icon: LayoutDashboard,
   },
-  {
-    name: "Manage Users",
-    path: "/admin/users",
-    icon: Users,
-  },
-  {
-    name: "Performance",
-    path: "/admin/performance",
-    icon: BarChart3,
-  },
-  {
-    name: "Reports",
-    path: "/admin/reports",
-    icon: FileText,
-  },
+  
 ];
 
 export default function AdminSidebar({ mobileOpen, setMobileOpen }) {

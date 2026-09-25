@@ -323,15 +323,6 @@ export default function AdminDashboard() {
             />
           </div>
 
-          {/* ======================================
-              USER PERFORMANCE CHART
-          ====================================== */}
-
-          <div className="mt-7">
-            <UserPerformanceChart
-              data={userPerformanceData}
-            />
-          </div>
 
           {/* ======================================
               USERS
