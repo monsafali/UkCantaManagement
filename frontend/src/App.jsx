@@ -4,18 +4,14 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 import Login from "./Pages/Login";
 
-import StampForm from "./Pages/StampForm";
-import SearchStamp from "./Pages/SearchStamp";
-import DateReport from "./Pages/DateReport";
+
 
 import AdminDashboard from "./Pages/AdminDashboard";
 import UserDashboard from "./Pages/UserDashboard";
 
-
 import UserLayout from "./components/UserLayout";
 function App() {
   return (
-
     <>
       <Routes>
         {/* =========================
@@ -28,17 +24,12 @@ function App() {
             USER ROUTES
         ========================== */}
 
-     <Route element={<ProtectedRoute allowedRoles={["User"]} />}>
-  <Route element={<UserLayout />}>
-    <Route path="/user" element={<UserDashboard />} />
+        <Route element={<ProtectedRoute allowedRoles={["User"]} />}>
 
-    <Route path="/" element={<StampForm />} />
 
-    <Route path="/search" element={<SearchStamp />} />
-
-    <Route path="/report" element={<DateReport />} />
-  </Route>
-</Route>
+            <Route path="/" element={<UserDashboard />} />
+         
+        </Route>
 
         {/* =========================
             ADMIN ROUTES

@@ -21,12 +21,7 @@ export default function Navbar() {
     <nav className="bg-gray-800 text-white px-6 py-4 flex items-center justify-between">
       {/* Left */}
       <div className="flex items-center gap-6">
-        <Link
-          to={user.role === "Admin" ? "/admin" : "/user"}
-          className="font-bold text-xl"
-        >
-          Computer Canta
-        </Link>
+
 
         {user.role === "User" && (
           <>
@@ -50,6 +45,7 @@ export default function Navbar() {
             >
               Report
             </Link>
+                
           </>
         )}
 

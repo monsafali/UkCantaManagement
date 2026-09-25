@@ -4,7 +4,7 @@ import Navbar from "./Navbar";
 export default function UserLayout() {
   return (
     <>
-      <Navbar />
+
       <Outlet />
     </>
   );

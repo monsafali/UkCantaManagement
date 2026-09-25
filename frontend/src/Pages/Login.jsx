@@ -36,7 +36,7 @@ export default function Login() {
       if (result.user.role === "Admin") {
         navigate("/admin", { replace: true });
       } else {
-        navigate("/user", { replace: true });
+        navigate("/", { replace: true });
       }
     } catch (error) {
       console.error(error);

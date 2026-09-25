@@ -154,36 +154,6 @@ const useProductStore = create((set) => ({
   },
 
   // =========================
-  // DELETE PRODUCT
-  // =========================
-
-  deleteProduct: async (SrNo) => {
-    try {
-      set({
-        loading: true,
-        error: null,
-      });
-
-      const response = await axiosInstance.delete(`/product/${SrNo}`);
-
-      set({
-        loading: false,
-      });
-
-      return response.data;
-    } catch (error) {
-      console.error("Delete product failed:", error);
-
-      set({
-        loading: false,
-        error: error.response?.data?.message || "Failed to delete product",
-      });
-
-      throw error;
-    }
-  },
-
-  // =========================
   // CLEAR ERROR
   // =========================
 
