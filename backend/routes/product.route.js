@@ -1,17 +1,30 @@
-import express from 'express'
-import { GenerateProduct,SearchDate, SearchProduct,getSr,deleteProduct} from '../controllers/product.controller.js'
-import { isAuthenticated } from '../middleware/isAuth.js'
+import express from "express";
 
+import {
+  GenerateProduct,
+  SearchDate,
+  SearchProduct,
+  getSr,
+  saveFirstWeight,
+  getFirstWeight,
+} from "../controllers/product.controller.js";
 
-const router = express.Router()
+import { isAuthenticated } from "../middleware/isAuth.js";
 
+const router = express.Router();
 
+router.get("/sr", isAuthenticated, getSr);
 
-router.get("/sr", isAuthenticated, getSr)
-router.post("/generate", isAuthenticated, GenerateProduct)
-router.post("/searchDate",isAuthenticated , SearchDate)
-router.post("/search", isAuthenticated, SearchProduct)
-router.delete("/product/:SrNo",isAuthenticated,  deleteProduct)
+router.post("/generate", isAuthenticated, GenerateProduct);
 
+// TWO-STEP WEIGHT FLOW
+router.post("/saveFirtstWeight", isAuthenticated, saveFirstWeight);
 
-export default router
+router.get("/getfirstweight", isAuthenticated, getFirstWeight);
+
+// SEARCH / REPORT
+router.post("/searchDate", isAuthenticated, SearchDate);
+
+router.post("/search", isAuthenticated, SearchProduct);
+
+export default router;

@@ -1,7 +1,7 @@
-// routes/authRoutes.js
+// routes/adminRoutes.js
+
 import express from "express";
 
-import { authorizedRole, isAuthenticated } from "../middleware/isAuth.js";
 import {
   adminCreateUser,
   getAllUsers,
@@ -9,9 +9,19 @@ import {
   deleteUser,
   getUserPerformance,
   getAdminDashboard,
+  getAdminReports,
 } from "../controllers/adminController.js";
 
+import {
+  authorizedRole,
+  isAuthenticated,
+} from "../middleware/isAuth.js";
+
 const router = express.Router();
+
+// ================================================
+// DASHBOARD
+// ================================================
 
 router.get(
   "/dashboard",
@@ -31,7 +41,12 @@ router.post(
   adminCreateUser,
 );
 
-router.get("/users", isAuthenticated, authorizedRole("Admin"), getAllUsers);
+router.get(
+  "/users",
+  isAuthenticated,
+  authorizedRole("Admin"),
+  getAllUsers,
+);
 
 router.patch(
   "/users/:id/status",
@@ -56,6 +71,17 @@ router.get(
   isAuthenticated,
   authorizedRole("Admin"),
   getUserPerformance,
+);
+
+// ================================================
+// REPORTS
+// ================================================
+
+router.get(
+  "/reports",
+  isAuthenticated,
+  authorizedRole("Admin"),
+  getAdminReports
 );
 
 export default router;

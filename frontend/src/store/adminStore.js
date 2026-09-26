@@ -2,18 +2,30 @@ import { create } from "zustand";
 import axiosInstance from "../api/axios";
 
 const useAdminStore = create((set, get) => ({
+  // ==========================================
+  // STATE
+  // ==========================================
+
   dashboard: null,
+
   users: [],
+
   userPerformance: null,
 
+  reports: null,
+
   loading: false,
+
   usersLoading: false,
+
   performanceLoading: false,
+
+  reportsLoading: false,
 
   error: null,
 
   // ==========================================
-  // ADMIN DASHBOARD
+  // DASHBOARD
   // ==========================================
 
   getAdminDashboard: async () => {
@@ -23,9 +35,10 @@ const useAdminStore = create((set, get) => ({
         error: null,
       });
 
-      const response = await axiosInstance.get(
-        "/admin/dashboard"
-      );
+      const response =
+        await axiosInstance.get(
+          "/admin/dashboard",
+        );
 
       set({
         dashboard: response.data,
@@ -34,11 +47,6 @@ const useAdminStore = create((set, get) => ({
 
       return response.data;
     } catch (error) {
-      console.error(
-        "Admin dashboard error:",
-        error.response?.data || error.message
-      );
-
       set({
         loading: false,
         error:
@@ -51,7 +59,7 @@ const useAdminStore = create((set, get) => ({
   },
 
   // ==========================================
-  // GET ALL USERS
+  // USERS
   // ==========================================
 
   getAllUsers: async () => {
@@ -61,12 +69,14 @@ const useAdminStore = create((set, get) => ({
         error: null,
       });
 
-      const response = await axiosInstance.get(
-        "/admin/users"
-      );
+      const response =
+        await axiosInstance.get(
+          "/admin/users",
+        );
 
       set({
-        users: response.data.users || [],
+        users:
+          response.data.users || [],
         usersLoading: false,
       });
 
@@ -94,10 +104,11 @@ const useAdminStore = create((set, get) => ({
         error: null,
       });
 
-      const response = await axiosInstance.post(
-        "/admin/users",
-        data
-      );
+      const response =
+        await axiosInstance.post(
+          "/admin/users",
+          data,
+        );
 
       set((state) => ({
         users: [
@@ -107,7 +118,6 @@ const useAdminStore = create((set, get) => ({
         usersLoading: false,
       }));
 
-      // Refresh dashboard statistics
       await get().getAdminDashboard();
 
       return response.data;
@@ -124,23 +134,26 @@ const useAdminStore = create((set, get) => ({
   },
 
   // ==========================================
-  // ACTIVATE / DEACTIVATE
+  // TOGGLE USER
   // ==========================================
 
   toggleUserStatus: async (id) => {
     try {
-      const response = await axiosInstance.patch(
-        `/admin/users/${id}/status`
-      );
+      const response =
+        await axiosInstance.patch(
+          `/admin/users/${id}/status`,
+        );
 
       set((state) => ({
-        users: state.users.map((user) =>
-          user._id === id
-            ? {
-                ...user,
-                isActive: response.data.isActive,
-              }
-            : user
+        users: state.users.map(
+          (user) =>
+            user._id === id
+              ? {
+                  ...user,
+                  isActive:
+                    response.data.isActive,
+                }
+              : user,
         ),
       }));
 
@@ -165,12 +178,12 @@ const useAdminStore = create((set, get) => ({
   deleteUser: async (id) => {
     try {
       await axiosInstance.delete(
-        `/admin/users/${id}`
+        `/admin/users/${id}`,
       );
 
       set((state) => ({
         users: state.users.filter(
-          (user) => user._id !== id
+          (user) => user._id !== id,
         ),
       }));
 
@@ -198,12 +211,14 @@ const useAdminStore = create((set, get) => ({
         userPerformance: null,
       });
 
-      const response = await axiosInstance.get(
-        `/admin/users/${id}/performance`
-      );
+      const response =
+        await axiosInstance.get(
+          `/admin/users/${id}/performance`,
+        );
 
       set({
-        userPerformance: response.data,
+        userPerformance:
+          response.data,
         performanceLoading: false,
       });
 
@@ -221,7 +236,52 @@ const useAdminStore = create((set, get) => ({
   },
 
   // ==========================================
-  // CLEAR PERFORMANCE
+  // REPORT
+  // ==========================================
+
+  getAdminReports: async ({
+    from,
+    to,
+    userId = "all",
+  }) => {
+    try {
+      set({
+        reportsLoading: true,
+        error: null,
+      });
+
+      const response =
+        await axiosInstance.get(
+          "/admin/reports",
+          {
+            params: {
+              from,
+              to,
+              userId,
+            },
+          },
+        );
+
+      set({
+        reports: response.data,
+        reportsLoading: false,
+      });
+
+      return response.data;
+    } catch (error) {
+      set({
+        reportsLoading: false,
+        error:
+          error.response?.data?.message ||
+          "Failed to generate report",
+      });
+
+      throw error;
+    }
+  },
+
+  // ==========================================
+  // CLEAR
   // ==========================================
 
   clearUserPerformance: () => {
@@ -230,9 +290,11 @@ const useAdminStore = create((set, get) => ({
     });
   },
 
-  // ==========================================
-  // CLEAR ERROR
-  // ==========================================
+  clearReports: () => {
+    set({
+      reports: null,
+    });
+  },
 
   clearError: () => {
     set({

@@ -6,25 +6,21 @@ import generateStampData from "../utils/generateStampData.js";
 
 import { puppeteerConfig } from "../config/puppeteer.js";
 
-
-// =====================================================
-// GET NEXT SERIAL NUMBER
-// =====================================================
+// ======================================================
+// GET NEXT SR NO
+// ======================================================
 
 export const getSr = async (req, res) => {
   try {
-    // Get product with highest Sr_No
     const product = await Product.findOne()
       .sort({ Sr_No: -1 })
       .lean();
 
-    // If no product exists
     if (!product) {
       return res.json(1);
     }
 
     return res.json(Number(product.Sr_No) + 1);
-
   } catch (error) {
     console.error("getSr error:", error);
 
@@ -34,81 +30,403 @@ export const getSr = async (req, res) => {
   }
 };
 
+// ======================================================
+// SAVE FIRST WEIGHT
+// ======================================================
 
-// =====================================================
-// GENERATE PRODUCT + PDF
-// =====================================================
-
-export const GenerateProduct = async (req, res) => {
+export const saveFirstWeight = async (req, res) => {
   try {
-    // FRONTEND DATA
-    const bodyData = req.body;
+    const {
+      Sr_No,
+      vehicle,
+      Party,
+      Product: productName,
+      ProductId,
+      Gross,
+    } = req.body;
 
-    // GENERATE AUTO VALUES
-    const finalData = generateStampData(bodyData);
+    // ------------------------------------------
+    // VALIDATION
+    // ------------------------------------------
 
-    // SAVE PRODUCT
+    if (!Sr_No) {
+      return res.status(400).json({
+        message: "Sr No is required",
+      });
+    }
 
-     const savedProduct = await Product.create({
-      Sr_No: finalData.Sr_No,
+    if (!vehicle) {
+      return res.status(400).json({
+        message: "Vehicle is required",
+      });
+    }
 
-      vehicle: finalData.vehicle,
+    if (!Party) {
+      return res.status(400).json({
+        message: "Party is required",
+      });
+    }
 
-      Party: finalData.Party,
+    if (!productName) {
+      return res.status(400).json({
+        message: "Product is required",
+      });
+    }
 
-      Product: finalData.Product,
+    if (
+      Gross === undefined ||
+      Gross === null ||
+      Gross === ""
+    ) {
+      return res.status(400).json({
+        message: "First weight is required",
+      });
+    }
 
-      ProductId: finalData.ProductId,
+    // ------------------------------------------
+    // CHECK IF SR ALREADY EXISTS
+    // ------------------------------------------
 
-      Gross: finalData.Gross,
+    const existingProduct = await Product.findOne({
+      Sr_No: Number(Sr_No),
+    });
 
-      Tare: finalData.Tare,
+    if (existingProduct) {
+      return res.status(409).json({
+        message: `Sr No ${Sr_No} already exists`,
+      });
+    }
 
-      Net: finalData.Net,
+    // ------------------------------------------
+    // CREATE PARTIAL PRODUCT
+    // ------------------------------------------
 
-      Cash: finalData.Cash,
+    const product = await Product.create({
+      Sr_No: Number(Sr_No),
 
-      Date: finalData.Date,
+      vehicle: vehicle?.toUpperCase(),
 
-      GrossDate: finalData.GrossDate,
+      Party: Party?.toUpperCase(),
 
-      TareDate: finalData.TareDate,
+      Product: productName?.toUpperCase(),
 
-      formDate: finalData.formDate,
+      ProductId,
 
-      GrossTime: finalData.GrossTime,
+      Gross: Number(Gross),
 
-      TareTime: finalData.TareTime,
+      // Second weight is empty for now
+      Tare: 0,
 
-      remarks: finalData.remarks,
+      Net: 0,
 
-      calc40_mnds:
-        finalData.calc40?.mnds || 0,
+      Cash: 0,
 
-      calc40_kg:
-        finalData.calc40?.kg || 0,
+      // First weight date/time
+      GrossDate: new Date(),
 
-      calc37_mnds:
-        finalData.calc37?.mnds || 0,
+      GrossTime: new Date().toLocaleTimeString(),
 
-      calc37_kg:
-        finalData.calc37?.kg || 0,
+      Date: new Date().toLocaleDateString("en-GB"),
 
-      // VERY IMPORTANT
+      formDate: new Date(),
+
+      // User who saved first weight
       user: req.user._id,
     });
 
-    console.log("Product saved:", savedProduct._id);
+    console.log(
+      "First weight saved:",
+      product._id
+    );
 
-    // =================================================
+    return res.status(201).json({
+      message: "First weight saved successfully",
+      srNo: product.Sr_No,
+      product,
+    });
+  } catch (error) {
+    console.error(
+      "saveFirstWeight error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// ======================================================
+// GET FIRST WEIGHT
+// ======================================================
+
+export const getFirstWeight = async (req, res) => {
+  try {
+    const { Sr_No } = req.query;
+
+    if (!Sr_No) {
+      return res.status(400).json({
+        message: "Sr No is required",
+      });
+    }
+
+    const product = await Product.findOne({
+      Sr_No: Number(Sr_No),
+    }).lean();
+
+    if (!product) {
+      return res.status(404).json({
+        message: "First weight not found",
+      });
+    }
+
+    // ------------------------------------------
+    // CHECK WHETHER SECOND WEIGHT IS ALREADY DONE
+    // ------------------------------------------
+
+    if (
+      product.Tare &&
+      Number(product.Tare) > 0
+    ) {
+      return res.status(400).json({
+        message:
+          "Second weight has already been recorded for this Sr No",
+      });
+    }
+
+    return res.json({
+      message: "First weight found",
+      product,
+    });
+  } catch (error) {
+    console.error(
+      "getFirstWeight error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// ======================================================
+// GENERATE PRODUCT / COMPLETE SECOND WEIGHT
+// ======================================================
+
+export const GenerateProduct = async (req, res) => {
+  try {
+    const bodyData = req.body;
+
+    const {
+      Sr_No,
+      Gross,
+      Tare,
+      Cash,
+    } = bodyData;
+
+    if (!Sr_No) {
+      return res.status(400).json({
+        message: "Sr No is required",
+      });
+    }
+
+    if (
+      Gross === undefined ||
+      Gross === null ||
+      Gross === ""
+    ) {
+      return res.status(400).json({
+        message: "First weight is required",
+      });
+    }
+
+    if (
+      Tare === undefined ||
+      Tare === null ||
+      Tare === ""
+    ) {
+      return res.status(400).json({
+        message: "Second weight is required",
+      });
+    }
+
+    // ==================================================
+    // CHECK EXISTING RECORD
+    // ==================================================
+
+    const existingProduct = await Product.findOne({
+      Sr_No: Number(Sr_No),
+    });
+
+    // ==================================================
+    // GENERATE FINAL DATA
+    // ==================================================
+
+    let finalData;
+
+    if (existingProduct) {
+      // ----------------------------------------------
+      // TWO-STEP FLOW
+      // ----------------------------------------------
+
+      finalData = generateStampData({
+        ...existingProduct.toObject(),
+
+        ...bodyData,
+
+        Sr_No: Number(Sr_No),
+
+        Gross: Number(Gross),
+
+        Tare: Number(Tare),
+
+        Cash: Number(Cash || 0),
+      });
+    } else {
+      // ----------------------------------------------
+      // ONE-STEP FLOW
+      // ----------------------------------------------
+
+      finalData = generateStampData({
+        ...bodyData,
+
+        Sr_No: Number(Sr_No),
+
+        Gross: Number(Gross),
+
+        Tare: Number(Tare),
+
+        Cash: Number(Cash || 0),
+      });
+    }
+
+    // ==================================================
+    // UPDATE EXISTING FIRST WEIGHT
+    // ==================================================
+
+    let savedProduct;
+
+    if (existingProduct) {
+      savedProduct = await Product.findOneAndUpdate(
+        {
+          Sr_No: Number(Sr_No),
+        },
+        {
+          vehicle: finalData.vehicle,
+
+          Party: finalData.Party,
+
+          Product: finalData.Product,
+
+          ProductId: finalData.ProductId,
+
+          Gross: finalData.Gross,
+
+          Tare: finalData.Tare,
+
+          Net: finalData.Net,
+
+          Cash: finalData.Cash,
+
+          Date: finalData.Date,
+
+          GrossDate: finalData.GrossDate,
+
+          TareDate: finalData.TareDate,
+
+          formDate: finalData.formDate,
+
+          GrossTime: finalData.GrossTime,
+
+          TareTime: finalData.TareTime,
+
+          remarks: finalData.remarks,
+
+          calc40_mnds:
+            finalData.calc40?.mnds || 0,
+
+          calc40_kg:
+            finalData.calc40?.kg || 0,
+
+          calc37_mnds:
+            finalData.calc37?.mnds || 0,
+
+          calc37_kg:
+            finalData.calc37?.kg || 0,
+        },
+        {
+          new: true,
+        }
+      );
+    } else {
+      // ==================================================
+      // CREATE NEW COMPLETE RECORD
+      // ==================================================
+
+      savedProduct = await Product.create({
+        Sr_No: finalData.Sr_No,
+
+        vehicle: finalData.vehicle,
+
+        Party: finalData.Party,
+
+        Product: finalData.Product,
+
+        ProductId: finalData.ProductId,
+
+        Gross: finalData.Gross,
+
+        Tare: finalData.Tare,
+
+        Net: finalData.Net,
+
+        Cash: finalData.Cash,
+
+        Date: finalData.Date,
+
+        GrossDate: finalData.GrossDate,
+
+        TareDate: finalData.TareDate,
+
+        formDate: finalData.formDate,
+
+        GrossTime: finalData.GrossTime,
+
+        TareTime: finalData.TareTime,
+
+        remarks: finalData.remarks,
+
+        calc40_mnds:
+          finalData.calc40?.mnds || 0,
+
+        calc40_kg:
+          finalData.calc40?.kg || 0,
+
+        calc37_mnds:
+          finalData.calc37?.mnds || 0,
+
+        calc37_kg:
+          finalData.calc37?.kg || 0,
+
+        user: req.user._id,
+      });
+    }
+
+    console.log(
+      "Product saved:",
+      savedProduct._id
+    );
+
+    // ==================================================
     // GENERATE HTML
-    // =================================================
+    // ==================================================
 
     const html = stampTemplate(finalData);
 
-    // =================================================
+    // ==================================================
     // GENERATE PDF
-    // =================================================
+    // ==================================================
 
     const browser = await puppeteer.launch(
       puppeteerConfig
@@ -128,7 +446,6 @@ export const GenerateProduct = async (req, res) => {
         pageRanges: "1",
       });
 
-      // SEND PDF
       res.setHeader(
         "Content-Type",
         "application/pdf"
@@ -145,13 +462,14 @@ export const GenerateProduct = async (req, res) => {
       );
 
       return res.end(pdfBuffer);
-
     } finally {
       await browser.close();
     }
-
   } catch (error) {
-    console.error("GenerateProduct error:", error);
+    console.error(
+      "GenerateProduct error:",
+      error
+    );
 
     return res.status(500).json({
       message: error.message,
@@ -159,30 +477,23 @@ export const GenerateProduct = async (req, res) => {
   }
 };
 
-
-// =====================================================
-// SEARCH PRODUCT BY SERIAL NUMBER + PDF
-// =====================================================
+// ======================================================
+// SEARCH PRODUCT
+// ======================================================
 
 export const SearchProduct = async (req, res) => {
   try {
     const { Sr_No } = req.body;
 
-    // MONGOOSE
     const product = await Product.findOne({
       Sr_No: Number(Sr_No),
     }).lean();
 
-    // NOT FOUND
     if (!product) {
       return res.status(404).json({
         message: "Product not found",
       });
     }
-
-    // =================================================
-    // CONVERT DATABASE DATA TO TEMPLATE FORMAT
-    // =================================================
 
     const productData = {
       ...product,
@@ -198,15 +509,7 @@ export const SearchProduct = async (req, res) => {
       },
     };
 
-    // =================================================
-    // GENERATE HTML
-    // =================================================
-
     const html = stampTemplate(productData);
-
-    // =================================================
-    // GENERATE PDF
-    // =================================================
 
     const browser = await puppeteer.launch(
       puppeteerConfig
@@ -226,7 +529,6 @@ export const SearchProduct = async (req, res) => {
         pageRanges: "1",
       });
 
-      // SEND PDF
       res.setHeader(
         "Content-Type",
         "application/pdf"
@@ -243,13 +545,14 @@ export const SearchProduct = async (req, res) => {
       );
 
       return res.end(pdfBuffer);
-
     } finally {
       await browser.close();
     }
-
   } catch (error) {
-    console.error("SearchProduct error:", error);
+    console.error(
+      "SearchProduct error:",
+      error
+    );
 
     return res.status(500).json({
       message: "Preview failed",
@@ -257,18 +560,13 @@ export const SearchProduct = async (req, res) => {
   }
 };
 
-
-// =====================================================
-// SEARCH PRODUCTS BY DATE + GENERATE REPORT
-// =====================================================
+// ======================================================
+// DATE REPORT
+// ======================================================
 
 export const SearchDate = async (req, res) => {
   try {
     const { fromDate, toDate } = req.body;
-
-    // =================================================
-    // DATE CONVERT
-    // =================================================
 
     const from = new Date(fromDate);
 
@@ -276,24 +574,17 @@ export const SearchDate = async (req, res) => {
 
     to.setHours(23, 59, 59, 999);
 
-    // =================================================
-    // GET ALL PRODUCTS
-    // =================================================
-
     const products = await Product.find({})
       .sort({ Sr_No: 1 })
       .lean();
-
-    // =================================================
-    // FILTER DATA
-    // =================================================
 
     const filtered = products.filter((item) => {
       if (!item.Date) {
         return false;
       }
 
-      const [dd, mm, yy] = item.Date.split("-");
+      const [dd, mm, yy] =
+        item.Date.split("-");
 
       const fullYear =
         Number(yy) < 50
@@ -310,31 +601,17 @@ export const SearchDate = async (req, res) => {
       );
     });
 
-    // =================================================
-    // NO RECORDS
-    // =================================================
-
     if (!filtered.length) {
-      return res.status(404).send("No records found");
+      return res
+        .status(404)
+        .send("No records found");
     }
 
-    // =================================================
-    // TOTAL CASH
-    // =================================================
-
     const totalCash = filtered.reduce(
-      (sum, item) => {
-        return (
-          sum +
-          (Number(item.Cash) || 0)
-        );
-      },
+      (sum, item) =>
+        sum + (Number(item.Cash) || 0),
       0
     );
-
-    // =================================================
-    // HTML REPORT
-    // =================================================
 
     const html = `
       <!DOCTYPE html>
@@ -430,45 +707,25 @@ export const SearchDate = async (req, res) => {
                 (item) => `
                   <tr>
 
-                    <td>
-                      ${item.Sr_No}
-                    </td>
+                    <td>${item.Sr_No}</td>
 
-                    <td>
-                      ${item.vehicle || ""}
-                    </td>
+                    <td>${item.vehicle || ""}</td>
 
-                    <td>
-                      ${item.Party || ""}
-                    </td>
+                    <td>${item.Party || ""}</td>
 
-                    <td>
-                      ${item.Product || ""}
-                    </td>
+                    <td>${item.Product || ""}</td>
 
-                    <td>
-                      ${item.Gross || ""}
-                    </td>
+                    <td>${item.Gross || ""}</td>
 
-                    <td>
-                      ${item.Tare || ""}
-                    </td>
+                    <td>${item.Tare || ""}</td>
 
-                    <td>
-                      ${item.Cash || ""}
-                    </td>
+                    <td>${item.Cash || ""}</td>
 
-                    <td>
-                      ${item.Date || ""}
-                    </td>
+                    <td>${item.Date || ""}</td>
 
-                    <td>
-                      ${item.GrossTime || ""}
-                    </td>
+                    <td>${item.GrossTime || ""}</td>
 
-                    <td>
-                      ${item.TareTime || ""}
-                    </td>
+                    <td>${item.TareTime || ""}</td>
 
                   </tr>
                 `
@@ -491,10 +748,6 @@ export const SearchDate = async (req, res) => {
       </html>
     `;
 
-    // =================================================
-    // GENERATE PDF
-    // =================================================
-
     const browser = await puppeteer.launch(
       puppeteerConfig
     );
@@ -512,10 +765,6 @@ export const SearchDate = async (req, res) => {
         printBackground: true,
       });
 
-      // =================================================
-      // SEND PDF
-      // =================================================
-
       res.setHeader(
         "Content-Type",
         "application/pdf"
@@ -532,47 +781,14 @@ export const SearchDate = async (req, res) => {
       );
 
       return res.end(pdfBuffer);
-
     } finally {
       await browser.close();
     }
-
   } catch (error) {
-    console.error("SearchDate error:", error);
-
-    return res.status(500).json({
-      message: error.message,
-    });
-  }
-};
-
-
-// =====================================================
-// DELETE PRODUCT
-// =====================================================
-
-export const deleteProduct = async (req, res) => {
-  try {
-    const { SrNo } = req.params;
-
-    // MONGOOSE
-    const deleted = await Product.deleteOne({
-      Sr_No: Number(SrNo),
-    });
-
-    // NO PRODUCT
-    if (deleted.deletedCount === 0) {
-      return res.status(404).json({
-        message: "Product not found",
-      });
-    }
-
-    return res.json({
-      message: "Product deleted successfully",
-    });
-
-  } catch (error) {
-    console.error("deleteProduct error:", error);
+    console.error(
+      "SearchDate error:",
+      error
+    );
 
     return res.status(500).json({
       message: error.message,
