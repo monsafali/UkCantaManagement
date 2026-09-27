@@ -17,9 +17,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-
-
-
 app.use(
   cors({
     origin:
@@ -28,19 +25,16 @@ app.use(
   }),
 );
 
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
 
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/admin", AdminRoutes);
 app.use("/api/v1", ProductRoute);
 
-
 app.listen(PORT, async () => {
   await connectDB();
-      await seedSuperAdmin();
-console.log(`Server running on port ${PORT}`);
+  await seedSuperAdmin();
+  console.log(`Server running on port ${PORT}`);
 });

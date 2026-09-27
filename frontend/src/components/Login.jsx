@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
-
+import { Eye, EyeOff } from "lucide-react";
 export default function Login() {
   const navigate = useNavigate();
 
   const login = useAuthStore((state) => state.login);
   const loading = useAuthStore((state) => state.loading);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -42,8 +43,7 @@ export default function Login() {
       console.error(error);
 
       setError(
-        error.response?.data?.message ||
-          "Invalid username, password, or role"
+        error.response?.data?.message || "Invalid username, password, or role",
       );
     }
   };
@@ -51,13 +51,9 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-center mb-2">
-          Login
-        </h1>
+        <h1 className="text-3xl font-bold text-center mb-2">Login</h1>
 
-        <p className="text-center text-gray-500 mb-6">
-          Login to your account
-        </p>
+        <p className="text-center text-gray-500 mb-6">Login to your account</p>
 
         {error && (
           <div className="mb-4 rounded-lg bg-red-100 text-red-700 px-4 py-3">
@@ -68,9 +64,7 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Username */}
           <div>
-            <label className="block mb-1 font-medium">
-              Username
-            </label>
+            <label className="block mb-1 font-medium">Username</label>
 
             <input
               type="text"
@@ -84,27 +78,35 @@ export default function Login() {
           </div>
 
           {/* Password */}
+          {/* Password */}
           <div>
-            <label className="block mb-1 font-medium">
-              Password
-            </label>
+            <label className="block mb-1 font-medium">Password</label>
 
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter password"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter password"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 pr-12 outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
 
           {/* Role */}
           <div>
-            <label className="block mb-1 font-medium">
-              Login As
-            </label>
+            <label className="block mb-1 font-medium">Login As</label>
 
             <select
               name="role"
