@@ -2,67 +2,51 @@ import { Routes, Route } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
-import Login from "./Pages/Login";
-
-
+import Login from "./components/Login";
 
 import AdminDashboard from "./Pages/AdminDashboard";
 import UserDashboard from "./Pages/UserDashboard";
 
-
-
-;
-import AdminUsers from "./Pages/AdminUsers";
-import AdminReports from "./Pages/AdminReports";
 function App() {
   return (
     <>
       <Routes>
-        {/* =========================
-            PUBLIC
-        ========================== */}
-
-        <Route path="/login" element={<Login />} />
-
-        {/* =========================
-            USER ROUTES
-        ========================== */}
-
-        <Route element={<ProtectedRoute allowedRoles={["User"]} />}>
-
-
-            <Route path="/" element={<UserDashboard />} />
-
-        </Route>
-
-        {/* =========================
-            ADMIN ROUTES
-        ========================== */}
-
+        {/* PUBLIC */}
 
         <Route
-  element={
-    <ProtectedRoute
-      allowedRoles={["Admin"]}
-    />
-  }
->
-  <Route
-    path="/admin"
-    element={<AdminDashboard />}
-  />
+          path="/login"
+          element={<Login />}
+        />
 
-  <Route
-    path="/admin/users"
-    element={<AdminUsers />}
-  />
+        {/* USER */}
 
-  <Route
-    path="/admin/reports"
-    element={<AdminReports />}
-  />
+        <Route
+          element={
+            <ProtectedRoute
+              allowedRoles={["User"]}
+            />
+          }
+        >
+          <Route
+            path="/"
+            element={<UserDashboard />}
+          />
         </Route>
 
+        {/* ADMIN */}
+
+        <Route
+          element={
+            <ProtectedRoute
+              allowedRoles={["Admin"]}
+            />
+          }
+        >
+          <Route
+            path="/admin"
+            element={<AdminDashboard />}
+          />
+        </Route>
       </Routes>
     </>
   );

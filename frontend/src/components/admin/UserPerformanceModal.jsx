@@ -224,74 +224,7 @@ export default function UserPerformanceModal({
               </div>
             </div>
 
-            {/* Daily table */}
-
-            <div className="mt-6 border rounded-xl overflow-hidden">
-
-              <div className="p-5 border-b">
-                <h3 className="font-bold">
-                  Daily Details
-                </h3>
-              </div>
-
-              <div className="overflow-x-auto">
-
-                <table className="w-full">
-
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="text-left px-5 py-3 text-sm">
-                        Date
-                      </th>
-
-                      <th className="text-right px-5 py-3 text-sm">
-                        Entries
-                      </th>
-
-                      <th className="text-right px-5 py-3 text-sm">
-                        Revenue
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {daily.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan="3"
-                          className="text-center py-8 text-gray-400"
-                        >
-                          No daily data.
-                        </td>
-                      </tr>
-                    ) : (
-                      daily.map((item) => (
-                        <tr
-                          key={item._id}
-                          className="border-t"
-                        >
-                          <td className="px-5 py-3">
-                            {item._id}
-                          </td>
-
-                          <td className="px-5 py-3 text-right">
-                            {item.entries}
-                          </td>
-
-                          <td className="px-5 py-3 text-right text-green-600 font-semibold">
-                            Rs.{" "}
-                            {Number(
-                              item.revenue || 0
-                            ).toLocaleString()}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-
-                </table>
-              </div>
-            </div>
+   
 
           </div>
         )}

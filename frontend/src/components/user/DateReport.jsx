@@ -1,17 +1,13 @@
 import { useState } from "react";
-import useProductStore from "../store/productStore";
+import useProductStore from "../../store/productStore";
 
 export default function DateReport() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  const downloadReport = useProductStore(
-    (state) => state.downloadReport
-  );
+  const downloadReport = useProductStore((state) => state.downloadReport);
 
-  const loading = useProductStore(
-    (state) => state.loading
-  );
+  const loading = useProductStore((state) => state.loading);
 
   const handleDownload = async (e) => {
     e.preventDefault();
@@ -22,24 +18,19 @@ export default function DateReport() {
     }
 
     try {
-      const pdfBlob = await downloadReport(
-        fromDate,
-        toDate
-      );
+      const pdfBlob = await downloadReport(fromDate, toDate);
 
       const url = window.URL.createObjectURL(
         new Blob([pdfBlob], {
           type: "application/pdf",
-        })
+        }),
       );
 
-      const link =
-        document.createElement("a");
+      const link = document.createElement("a");
 
       link.href = url;
 
-      link.download =
-        `report-${fromDate}-to-${toDate}.pdf`;
+      link.download = `report-${fromDate}-to-${toDate}.pdf`;
 
       document.body.appendChild(link);
 
@@ -51,10 +42,7 @@ export default function DateReport() {
     } catch (error) {
       console.error(error);
 
-      alert(
-        error.response?.data?.message ||
-          "Failed to download PDF"
-      );
+      alert(error.response?.data?.message || "Failed to download PDF");
     }
   };
 
@@ -64,25 +52,18 @@ export default function DateReport() {
         Download PDF Report
       </h2>
 
-      <form
-        onSubmit={handleDownload}
-        className="space-y-4"
-      >
+      <form onSubmit={handleDownload} className="space-y-4">
         <input
           type="date"
           value={fromDate}
-          onChange={(e) =>
-            setFromDate(e.target.value)
-          }
+          onChange={(e) => setFromDate(e.target.value)}
           className="w-full border p-2 rounded-md"
         />
 
         <input
           type="date"
           value={toDate}
-          onChange={(e) =>
-            setToDate(e.target.value)
-          }
+          onChange={(e) => setToDate(e.target.value)}
           className="w-full border p-2 rounded-md"
         />
 
@@ -91,9 +72,7 @@ export default function DateReport() {
           disabled={loading}
           className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 disabled:bg-gray-400"
         >
-          {loading
-            ? "Downloading..."
-            : "Download PDF"}
+          {loading ? "Downloading..." : "Download PDF"}
         </button>
       </form>
     </div>

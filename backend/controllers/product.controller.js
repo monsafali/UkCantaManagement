@@ -43,6 +43,7 @@ export const saveFirstWeight = async (req, res) => {
       Product: productName,
       ProductId,
       Gross,
+      Cash
     } = req.body;
 
     // ------------------------------------------
@@ -119,7 +120,7 @@ export const saveFirstWeight = async (req, res) => {
 
       Net: 0,
 
-      Cash: 0,
+      Cash: Number(Cash),
 
       // First weight date/time
       GrossDate: new Date(),

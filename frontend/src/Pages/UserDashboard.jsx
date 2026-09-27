@@ -1,9 +1,9 @@
 import { useState } from "react";
 import useAuthStore from "../store/authStore";
 
-import StampForm from "./StampForm";
-import SearchStamp from "./SearchStamp";
-import DateReport from "./DateReport";
+import StampForm from "../components/user/StampForm";
+import SearchStamp from "../components/user/SearchStamp";
+import DateReport from "../components/user/DateReport";
 
 export default function UserDashboard() {
   const [activePage, setActivePage] = useState("stamp");
