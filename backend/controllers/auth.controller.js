@@ -81,7 +81,12 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
   }
   res
     .status(200)
-    .cookie("jwt-token", "", { expires: new Date(0), httpOnly: true })
+    .clearCookie("jwt-token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      path: "/",
+    })
     .json({ success: true, message: "Logged out successfully" });
 });
 
