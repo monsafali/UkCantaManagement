@@ -5,8 +5,9 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon server.js",
-    "start": "NODE_ENV=production node server.js"
+    "dev": "PUPPETEER_CACHE_DIR=$PWD/.cache/puppeteer NODE_ENV=development nodemon server.js",
+    "start": "PUPPETEER_CACHE_DIR=$PWD/.cache/puppeteer NODE_ENV=production node server.js",
+    "postinstall": "PUPPETEER_CACHE_DIR=$PWD/.cache/puppeteer npx puppeteer browsers install chrome"
   },
   "repository": {
     "type": "git",
