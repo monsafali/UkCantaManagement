@@ -141,6 +141,17 @@ Authentication routes are available under:
 /api/auth
 ```
 
+## Deploying the login cookie to Render and Vercel
+
+The session JWT is issued as the `jwt-token` HTTP-only cookie. In production it uses `Secure` and `SameSite=None`, required when the Vercel frontend calls the Render API over HTTPS. The browser sends the cookie automatically; JavaScript cannot read it.
+
+Set these deployment environment variables:
+
+- **Render backend:** `NODE_ENV=production` and `FRONTEND_URL=https://your-app.vercel.app` (origin only, with no path). For multiple Vercel origins, use a comma-separated list.
+- **Vercel frontend:** `VITE_API_URL=https://your-service.onrender.com/api/v1` (include `/api/v1`). Redeploy after changing this value because Vite embeds it during the build.
+
+Axios already has `withCredentials: true`, and Express CORS must allow the exact Vercel origin with credentials. Vercel and Render use different sites, so browser privacy settings that block third-party cookies can still prevent this cookie from being stored. For reliable cookie sessions in those browsers, use custom frontend and API domains under the same parent domain (for example, `app.example.com` and `api.example.com`).
+
 Authentication uses the `isAuthenticated` middleware for protected endpoints.
 
 Administrators additionally require:
