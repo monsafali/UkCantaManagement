@@ -1,8 +1,7 @@
+import puppeteer from "puppeteer";
+
 export const puppeteerConfig = {
   headless: true,
-
-  executablePath: "/usr/bin/google-chrome",
-  //  executablePath: "/data/data/com.termux/files/usr/bin/chromium-browser",
-
+  executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath(),
   args: ["--no-sandbox", "--disable-setuid-sandbox"],
 };

@@ -255,6 +255,19 @@ export const GenerateProduct = async (req, res) => {
       });
     }
 
+    // Generate the PDF before writing the record. If the browser is missing or
+    // cannot render the stamp, the user can retry without hitting a duplicate Sr No.
+    const html = stampTemplate(finalData);
+    const browser = await puppeteer.launch(puppeteerConfig);
+    let pdfBuffer;
+    try {
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: "domcontentloaded", timeout: 60000 });
+      pdfBuffer = await page.pdf({ format: "A4", printBackground: true, pageRanges: "1" });
+    } finally {
+      await browser.close();
+    }
+
     // ==================================================
     // UPDATE EXISTING FIRST WEIGHT
     // ==================================================
@@ -361,42 +374,10 @@ export const GenerateProduct = async (req, res) => {
 
     console.log("Product saved:", savedProduct._id);
 
-    // ==================================================
-    // GENERATE HTML
-    // ==================================================
-
-    const html = stampTemplate(finalData);
-
-    // ==================================================
-    // GENERATE PDF
-    // ==================================================
-
-    const browser = await puppeteer.launch(puppeteerConfig);
-
-    try {
-      const page = await browser.newPage();
-
-      await page.setContent(html, {
-        waitUntil: "domcontentloaded",
-        timeout: 60000,
-      });
-
-      const pdfBuffer = await page.pdf({
-        format: "A4",
-        printBackground: true,
-        pageRanges: "1",
-      });
-
-      res.setHeader("Content-Type", "application/pdf");
-
-      res.setHeader("Content-Disposition", "attachment; filename=stamp.pdf");
-
-      res.setHeader("Content-Length", pdfBuffer.length);
-
-      return res.end(pdfBuffer);
-    } finally {
-      await browser.close();
-    }
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=stamp.pdf");
+    res.setHeader("Content-Length", pdfBuffer.length);
+    return res.end(pdfBuffer);
   } catch (error) {
     console.error("GenerateProduct error:", error);
 

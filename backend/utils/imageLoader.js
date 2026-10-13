@@ -1,11 +1,7 @@
 
 import fs from "fs";
-import path from "path";
-
 export function getBase64ImageCanta() {
-  const imagePath = path.join(process.cwd(), "public/logo.png");
-
-  const image = fs.readFileSync(imagePath);
+  const image = fs.readFileSync(new URL("../public/logo.png", import.meta.url));
 
   return `data:image/png;base64,${image.toString("base64")}`;
 }
@@ -14,20 +10,14 @@ export function getBase64ImageCanta() {
 
 
 export const getFontBase64 = () => {
-  const fontPath = path.join(process.cwd(), "public/fonts/NotoNastaliqUrdu-Regular.ttf");
-  const font = fs.readFileSync(fontPath);
+  const font = fs.readFileSync(new URL("../public/fonts/NotoNastaliqUrdu-Regular.ttf", import.meta.url));
   return `data:font/ttf;base64,${font.toString("base64")}`;
 };
 
 
 
 export const getEnglishFontBase64 = () => {
-  const fontPath = path.join(
-    process.cwd(),
-    "public/fonts/CantaEnglish.ttf"
-  );
-
-  const font = fs.readFileSync(fontPath);
+  const font = fs.readFileSync(new URL("../public/fonts/CantaEnglish.ttf", import.meta.url));
 
   return `data:font/ttf;base64,${font.toString("base64")}`;
 };
