@@ -1,20 +1,14 @@
 import puppeteer from "puppeteer";
 
 import Product from "../models/Product.js";
-import stampTemplate from "../templates/stampTemplate.js";
+import stampTemplate from "../templates/productTemplate.js";
 import generateStampData from "../utils/generateStampData.js";
 
 import { puppeteerConfig } from "../config/puppeteer.js";
 
-// ======================================================
-// GET NEXT SR NO
-// ======================================================
-
 export const getSr = async (req, res) => {
   try {
-    const product = await Product.findOne()
-      .sort({ Sr_No: -1 })
-      .lean();
+    const product = await Product.findOne().sort({ Sr_No: -1 }).lean();
 
     if (!product) {
       return res.json(1);
@@ -30,10 +24,6 @@ export const getSr = async (req, res) => {
   }
 };
 
-// ======================================================
-// SAVE FIRST WEIGHT
-// ======================================================
-
 export const saveFirstWeight = async (req, res) => {
   try {
     const {
@@ -43,7 +33,7 @@ export const saveFirstWeight = async (req, res) => {
       Product: productName,
       ProductId,
       Gross,
-      Cash
+      Cash,
     } = req.body;
 
     // ------------------------------------------
@@ -74,11 +64,7 @@ export const saveFirstWeight = async (req, res) => {
       });
     }
 
-    if (
-      Gross === undefined ||
-      Gross === null ||
-      Gross === ""
-    ) {
+    if (Gross === undefined || Gross === null || Gross === "") {
       return res.status(400).json({
         message: "First weight is required",
       });
@@ -135,10 +121,7 @@ export const saveFirstWeight = async (req, res) => {
       user: req.user._id,
     });
 
-    console.log(
-      "First weight saved:",
-      product._id
-    );
+    console.log("First weight saved:", product._id);
 
     return res.status(201).json({
       message: "First weight saved successfully",
@@ -146,10 +129,7 @@ export const saveFirstWeight = async (req, res) => {
       product,
     });
   } catch (error) {
-    console.error(
-      "saveFirstWeight error:",
-      error
-    );
+    console.error("saveFirstWeight error:", error);
 
     return res.status(500).json({
       message: error.message,
@@ -157,9 +137,6 @@ export const saveFirstWeight = async (req, res) => {
   }
 };
 
-// ======================================================
-// GET FIRST WEIGHT
-// ======================================================
 
 export const getFirstWeight = async (req, res) => {
   try {
@@ -185,13 +162,9 @@ export const getFirstWeight = async (req, res) => {
     // CHECK WHETHER SECOND WEIGHT IS ALREADY DONE
     // ------------------------------------------
 
-    if (
-      product.Tare &&
-      Number(product.Tare) > 0
-    ) {
+    if (product.Tare && Number(product.Tare) > 0) {
       return res.status(400).json({
-        message:
-          "Second weight has already been recorded for this Sr No",
+        message: "Second weight has already been recorded for this Sr No",
       });
     }
 
@@ -200,10 +173,7 @@ export const getFirstWeight = async (req, res) => {
       product,
     });
   } catch (error) {
-    console.error(
-      "getFirstWeight error:",
-      error
-    );
+    console.error("getFirstWeight error:", error);
 
     return res.status(500).json({
       message: error.message,
@@ -211,20 +181,11 @@ export const getFirstWeight = async (req, res) => {
   }
 };
 
-// ======================================================
-// GENERATE PRODUCT / COMPLETE SECOND WEIGHT
-// ======================================================
-
 export const GenerateProduct = async (req, res) => {
   try {
     const bodyData = req.body;
 
-    const {
-      Sr_No,
-      Gross,
-      Tare,
-      Cash,
-    } = bodyData;
+    const { Sr_No, Gross, Tare, Cash } = bodyData;
 
     if (!Sr_No) {
       return res.status(400).json({
@@ -232,21 +193,13 @@ export const GenerateProduct = async (req, res) => {
       });
     }
 
-    if (
-      Gross === undefined ||
-      Gross === null ||
-      Gross === ""
-    ) {
+    if (Gross === undefined || Gross === null || Gross === "") {
       return res.status(400).json({
         message: "First weight is required",
       });
     }
 
-    if (
-      Tare === undefined ||
-      Tare === null ||
-      Tare === ""
-    ) {
+    if (Tare === undefined || Tare === null || Tare === "") {
       return res.status(400).json({
         message: "Second weight is required",
       });
@@ -344,21 +297,17 @@ export const GenerateProduct = async (req, res) => {
 
           remarks: finalData.remarks,
 
-          calc40_mnds:
-            finalData.calc40?.mnds || 0,
+          calc40_mnds: finalData.calc40?.mnds || 0,
 
-          calc40_kg:
-            finalData.calc40?.kg || 0,
+          calc40_kg: finalData.calc40?.kg || 0,
 
-          calc37_mnds:
-            finalData.calc37?.mnds || 0,
+          calc37_mnds: finalData.calc37?.mnds || 0,
 
-          calc37_kg:
-            finalData.calc37?.kg || 0,
+          calc37_kg: finalData.calc37?.kg || 0,
         },
         {
           new: true,
-        }
+        },
       );
     } else {
       // ==================================================
@@ -398,26 +347,19 @@ export const GenerateProduct = async (req, res) => {
 
         remarks: finalData.remarks,
 
-        calc40_mnds:
-          finalData.calc40?.mnds || 0,
+        calc40_mnds: finalData.calc40?.mnds || 0,
 
-        calc40_kg:
-          finalData.calc40?.kg || 0,
+        calc40_kg: finalData.calc40?.kg || 0,
 
-        calc37_mnds:
-          finalData.calc37?.mnds || 0,
+        calc37_mnds: finalData.calc37?.mnds || 0,
 
-        calc37_kg:
-          finalData.calc37?.kg || 0,
+        calc37_kg: finalData.calc37?.kg || 0,
 
         user: req.user._id,
       });
     }
 
-    console.log(
-      "Product saved:",
-      savedProduct._id
-    );
+    console.log("Product saved:", savedProduct._id);
 
     // ==================================================
     // GENERATE HTML
@@ -429,9 +371,7 @@ export const GenerateProduct = async (req, res) => {
     // GENERATE PDF
     // ==================================================
 
-    const browser = await puppeteer.launch(
-      puppeteerConfig
-    );
+    const browser = await puppeteer.launch(puppeteerConfig);
 
     try {
       const page = await browser.newPage();
@@ -447,40 +387,24 @@ export const GenerateProduct = async (req, res) => {
         pageRanges: "1",
       });
 
-      res.setHeader(
-        "Content-Type",
-        "application/pdf"
-      );
+      res.setHeader("Content-Type", "application/pdf");
 
-      res.setHeader(
-        "Content-Disposition",
-        "attachment; filename=stamp.pdf"
-      );
+      res.setHeader("Content-Disposition", "attachment; filename=stamp.pdf");
 
-      res.setHeader(
-        "Content-Length",
-        pdfBuffer.length
-      );
+      res.setHeader("Content-Length", pdfBuffer.length);
 
       return res.end(pdfBuffer);
     } finally {
       await browser.close();
     }
   } catch (error) {
-    console.error(
-      "GenerateProduct error:",
-      error
-    );
+    console.error("GenerateProduct error:", error);
 
     return res.status(500).json({
       message: error.message,
     });
   }
 };
-
-// ======================================================
-// SEARCH PRODUCT
-// ======================================================
 
 export const SearchProduct = async (req, res) => {
   try {
@@ -512,9 +436,7 @@ export const SearchProduct = async (req, res) => {
 
     const html = stampTemplate(productData);
 
-    const browser = await puppeteer.launch(
-      puppeteerConfig
-    );
+    const browser = await puppeteer.launch(puppeteerConfig);
 
     try {
       const page = await browser.newPage();
@@ -530,40 +452,24 @@ export const SearchProduct = async (req, res) => {
         pageRanges: "1",
       });
 
-      res.setHeader(
-        "Content-Type",
-        "application/pdf"
-      );
+      res.setHeader("Content-Type", "application/pdf");
 
-      res.setHeader(
-        "Content-Disposition",
-        "attachment; filename=stamp.pdf"
-      );
+      res.setHeader("Content-Disposition", "attachment; filename=stamp.pdf");
 
-      res.setHeader(
-        "Content-Length",
-        pdfBuffer.length
-      );
+      res.setHeader("Content-Length", pdfBuffer.length);
 
       return res.end(pdfBuffer);
     } finally {
       await browser.close();
     }
   } catch (error) {
-    console.error(
-      "SearchProduct error:",
-      error
-    );
+    console.error("SearchProduct error:", error);
 
     return res.status(500).json({
       message: "Preview failed",
     });
   }
 };
-
-// ======================================================
-// DATE REPORT
-// ======================================================
 
 export const SearchDate = async (req, res) => {
   try {
@@ -575,43 +481,29 @@ export const SearchDate = async (req, res) => {
 
     to.setHours(23, 59, 59, 999);
 
-    const products = await Product.find({})
-      .sort({ Sr_No: 1 })
-      .lean();
+    const products = await Product.find({}).sort({ Sr_No: 1 }).lean();
 
     const filtered = products.filter((item) => {
       if (!item.Date) {
         return false;
       }
 
-      const [dd, mm, yy] =
-        item.Date.split("-");
+      const [dd, mm, yy] = item.Date.split("-");
 
-      const fullYear =
-        Number(yy) < 50
-          ? `20${yy}`
-          : `19${yy}`;
+      const fullYear = Number(yy) < 50 ? `20${yy}` : `19${yy}`;
 
-      const itemDate = new Date(
-        `${fullYear}-${mm}-${dd}`
-      );
+      const itemDate = new Date(`${fullYear}-${mm}-${dd}`);
 
-      return (
-        itemDate >= from &&
-        itemDate <= to
-      );
+      return itemDate >= from && itemDate <= to;
     });
 
     if (!filtered.length) {
-      return res
-        .status(404)
-        .send("No records found");
+      return res.status(404).send("No records found");
     }
 
     const totalCash = filtered.reduce(
-      (sum, item) =>
-        sum + (Number(item.Cash) || 0),
-      0
+      (sum, item) => sum + (Number(item.Cash) || 0),
+      0,
     );
 
     const html = `
@@ -729,7 +621,7 @@ export const SearchDate = async (req, res) => {
                     <td>${item.TareTime || ""}</td>
 
                   </tr>
-                `
+                `,
               )
               .join("")}
 
@@ -749,9 +641,7 @@ export const SearchDate = async (req, res) => {
       </html>
     `;
 
-    const browser = await puppeteer.launch(
-      puppeteerConfig
-    );
+    const browser = await puppeteer.launch(puppeteerConfig);
 
     try {
       const page = await browser.newPage();
@@ -766,30 +656,18 @@ export const SearchDate = async (req, res) => {
         printBackground: true,
       });
 
-      res.setHeader(
-        "Content-Type",
-        "application/pdf"
-      );
+      res.setHeader("Content-Type", "application/pdf");
 
-      res.setHeader(
-        "Content-Disposition",
-        "attachment; filename=report.pdf"
-      );
+      res.setHeader("Content-Disposition", "attachment; filename=report.pdf");
 
-      res.setHeader(
-        "Content-Length",
-        pdfBuffer.length
-      );
+      res.setHeader("Content-Length", pdfBuffer.length);
 
       return res.end(pdfBuffer);
     } finally {
       await browser.close();
     }
   } catch (error) {
-    console.error(
-      "SearchDate error:",
-      error
-    );
+    console.error("SearchDate error:", error);
 
     return res.status(500).json({
       message: error.message,

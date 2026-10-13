@@ -43,9 +43,6 @@ export default function AdminReports() {
     });
   };
 
-  // =================================================
-  // PDF
-  // =================================================
 
   const downloadPDF = () => {
     if (!reports) {
@@ -104,7 +101,7 @@ export default function AdminReports() {
 
   return (
     <div className="min-h-screen bg-slate-100">
-      <div className="lg:ml-72">
+      <div className="">
         <main className="p-4 md:p-6 lg:p-8">
           {/* HEADER */}
 

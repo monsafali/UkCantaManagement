@@ -37,7 +37,7 @@ export default function SearchStamp() {
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-xl">
-      <h2 className="text-2xl font-bold text-center mb-6">Reprint Money</h2>
+      <h2 className="text-2xl font-bold text-center mb-6">Reprint</h2>
 
       <form onSubmit={handleSearch} className="space-y-4">
         <input

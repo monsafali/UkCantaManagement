@@ -12,10 +12,7 @@ import {
   getAdminReports,
 } from "../controllers/adminController.js";
 
-import {
-  authorizedRole,
-  isAuthenticated,
-} from "../middleware/isAuth.js";
+import { authorizedRole, isAuthenticated } from "../middleware/isAuth.js";
 
 const router = express.Router();
 
@@ -41,12 +38,7 @@ router.post(
   adminCreateUser,
 );
 
-router.get(
-  "/users",
-  isAuthenticated,
-  authorizedRole("Admin"),
-  getAllUsers,
-);
+router.get("/users", isAuthenticated, authorizedRole("Admin"), getAllUsers);
 
 router.patch(
   "/users/:id/status",
@@ -81,7 +73,7 @@ router.get(
   "/reports",
   isAuthenticated,
   authorizedRole("Admin"),
-  getAdminReports
+  getAdminReports,
 );
 
 export default router;
