@@ -1,8 +1,13 @@
 import puppeteer from "puppeteer";
+import { existsSync } from "node:fs";
+
+const configuredBrowser = process.env.PUPPETEER_EXECUTABLE_PATH;
+const executablePath = configuredBrowser && existsSync(configuredBrowser)
+  ? configuredBrowser
+  : puppeteer.executablePath();
 
 export const puppeteerConfig = {
   headless: true,
-   executablePath: "/usr/bin/google-chrome",
-  // executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath(),
+  executablePath,
   args: ["--no-sandbox", "--disable-setuid-sandbox"],
 };
