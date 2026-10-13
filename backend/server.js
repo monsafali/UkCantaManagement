@@ -12,6 +12,7 @@ import cookieParser from "cookie-parser";
 import { connectDB } from "./config/database.js";
 
 import { seedSuperAdmin } from "./utils/seed.js";
+import { errorMiddleware } from "./middleware/errorMiddleware.js";
 dotenv.config();
 
 const app = express();
@@ -34,6 +35,7 @@ app.use(cookieParser());
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/admin", AdminRoutes);
 app.use("/api/v1", ProductRoute);
+app.use(errorMiddleware);
 
 app.listen(PORT, async () => {
   await connectDB();

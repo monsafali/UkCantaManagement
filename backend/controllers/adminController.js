@@ -20,6 +20,10 @@ export const adminCreateUser = catchAsyncErrors(
       confirmPassword,
     } = req.body;
 
+    const normalizedUsername = String(username || "").trim().toLowerCase();
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const normalizedFullname = String(fullname || "").trim();
+
     if (
       !fullname ||
       !username ||
@@ -42,7 +46,10 @@ export const adminCreateUser = catchAsyncErrors(
     }
 
     const existingUser = await UserAuth.findOne({
-      $or: [{ username }, { email }],
+      $or: [
+        { username: normalizedUsername },
+        { email: normalizedEmail },
+      ],
     });
 
     if (existingUser) {
@@ -55,9 +62,9 @@ export const adminCreateUser = catchAsyncErrors(
     }
 
     const user = await UserAuth.create({
-      fullname,
-      username,
-      email,
+      fullname: normalizedFullname,
+      username: normalizedUsername,
+      email: normalizedEmail,
       password,
       role: "User",
     });
