@@ -11,3 +11,20 @@ export const puppeteerConfig = {
   executablePath,
   args: ["--no-sandbox", "--disable-setuid-sandbox"],
 };
+
+
+
+
+
+
+
+// export const puppeteerConfig = {
+//   headless: true,
+
+//  executablePath: "/usr/bin/google-chrome",
+
+//   args: [
+//     "--no-sandbox",
+//     "--disable-setuid-sandbox"
+//   ]
+// };

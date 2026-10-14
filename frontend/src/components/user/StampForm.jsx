@@ -1,6 +1,6 @@
 import useStampForm from "../../hooks/useStampForm";
 import products from "../../../products";
-
+import { useState } from "react";
 export default function StampForm() {
   const {
     formData,
@@ -18,7 +18,7 @@ export default function StampForm() {
     handleGetFirstWeight,
     handleSubmit,
   } = useStampForm();
-
+  const [searchSrNo, setSearchSrNo] = useState("");
   const inputClass = `
     w-full
     border
@@ -30,11 +30,8 @@ export default function StampForm() {
   `;
 
   return (
-
-
-
-<div
-  className="
+    <div
+      className="
     min-h-screen
     w-full
     flex
@@ -44,9 +41,9 @@ export default function StampForm() {
     bg-gray-100
     text-black
   "
->
-  <div
-    className="
+    >
+      <div
+        className="
       flex
       flex-col
       w-full
@@ -56,180 +53,193 @@ export default function StampForm() {
       rounded-xl
       bg-white
     "
-  >
-    {/* TITLE */}
+      >
+        {/* TITLE */}
 
-    <h2 className="text-2xl font-bold text-center mb-6">
-      UK Computer Canta
-    </h2>
+        <h2 className="text-2xl font-bold text-center mb-6">
+          UK Computer Canta
+        </h2>
 
-    <form onSubmit={handleSubmit} className="space-y-6">
-
-      {/* ======================================
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* ======================================
           FORM FIELDS
       ====================================== */}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* SR NO */}
 
-        {/* SR NO */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Sr No</label>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Sr No
-          </label>
+              <input
+                type="number"
+                name="Sr_No"
+                value={formData.Sr_No}
+                readOnly
+                className={`${inputClass} bg-gray-100 cursor-not-allowed`}
+              />
+            </div>
 
-          <input
-            placeholder="Enter Sr No"
-            name="Sr_No"
-            value={formData.Sr_No}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Enter Sr No to Get First Weight
+              </label>
 
-        {/* VEHICLE */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="number"
+                  placeholder="Enter existing Sr No"
+                  value={searchSrNo}
+                  onChange={(e) => setSearchSrNo(e.target.value)}
+                  className={inputClass}
+                />
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Vehicle
-          </label>
+                <button
+                  type="button"
+                  onClick={() => handleGetFirstWeight(searchSrNo)}
+                  disabled={gettingFirstWeight || !searchSrNo}
+                  className="
+        px-5 py-2
+        rounded-md
+        font-medium
+        bg-orange-500
+        text-white
+        hover:bg-orange-600
+        disabled:bg-gray-400
+        whitespace-nowrap
+      "
+                >
+                  {gettingFirstWeight ? "Loading..." : "Get 1st Weight"}
+                </button>
+              </div>
+            </div>
 
-          <input
-            placeholder="Enter Vehicle"
-            name="vehicle"
-            value={formData.vehicle}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
+            {/* VEHICLE */}
 
-        {/* PARTY */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Vehicle</label>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Party
-          </label>
+              <input
+                placeholder="Enter Vehicle"
+                name="vehicle"
+                value={formData.vehicle}
+                onChange={handleChange}
+                className={inputClass}
+              />
+            </div>
 
-          <input
-            placeholder="Enter Party"
-            name="Party"
-            value={formData.Party}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
+            {/* PARTY */}
 
-        {/* PRODUCT CODE */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Party</label>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Product Code
-          </label>
+              <input
+                placeholder="Enter Party"
+                name="Party"
+                value={formData.Party}
+                onChange={handleChange}
+                className={inputClass}
+              />
+            </div>
 
-          <input
-            type="number"
-            placeholder="Enter Product Code"
-            onChange={handleProductCode}
-            className={inputClass}
-          />
-        </div>
+            {/* PRODUCT CODE */}
 
-        {/* PRODUCT */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Product Code
+              </label>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Product
-          </label>
+              <input
+                type="number"
+                placeholder="Enter Product Code"
+                onChange={handleProductCode}
+                className={inputClass}
+              />
+            </div>
 
-          <select
-            name="Product"
-            value={formData.Product}
-            onChange={handleProductSelect}
-            className={inputClass}
-          >
-            <option value="">
-              Select Product
-            </option>
+            {/* PRODUCT */}
 
-            {Object.entries(products).map(
-              ([id, name]) => (
-                <option key={id} value={name}>
-                  {id} - {name}
-                </option>
-              )
-            )}
-          </select>
-        </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Product</label>
 
-        {/* FIRST WEIGHT */}
+              <select
+                name="Product"
+                value={formData.Product}
+                onChange={handleProductSelect}
+                className={inputClass}
+              >
+                <option value="">Select Product</option>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            First Weight
-          </label>
+                {Object.entries(products).map(([id, name]) => (
+                  <option key={id} value={name}>
+                    {id} - {name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <input
-            type="number"
-            placeholder="Enter First Weight"
-            name="Gross"
-            value={formData.Gross}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
+            {/* FIRST WEIGHT */}
 
-        {/* SECOND WEIGHT */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                First Weight
+              </label>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Second Weight
-          </label>
+              <input
+                type="number"
+                placeholder="Enter First Weight"
+                name="Gross"
+                value={formData.Gross}
+                onChange={handleChange}
+                className={inputClass}
+              />
+            </div>
 
-          <input
-            type="number"
-            placeholder="Enter Second Weight"
-            name="Tare"
-            value={formData.Tare}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
+            {/* SECOND WEIGHT */}
 
-        {/* CASH */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Second Weight
+              </label>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Cash
-          </label>
+              <input
+                type="number"
+                placeholder="Enter Second Weight"
+                name="Tare"
+                value={formData.Tare}
+                onChange={handleChange}
+                className={inputClass}
+              />
+            </div>
 
-          <input
-            type="number"
-            placeholder="Enter Cash"
-            name="Cash"
-            value={formData.Cash}
-            onChange={handleChange}
-            className={inputClass}
-          />
-        </div>
+            {/* CASH */}
 
-      </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Cash</label>
 
-      {/* ======================================
+              <input
+                type="number"
+                placeholder="Enter Cash"
+                name="Cash"
+                value={formData.Cash}
+                onChange={handleChange}
+                className={inputClass}
+              />
+            </div>
+          </div>
+
+          {/* ======================================
           BUTTONS
       ====================================== */}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* SAVE FIRST WEIGHT */}
 
-        {/* SAVE FIRST WEIGHT */}
-
-        <button
-          type="button"
-          onClick={handleSaveFirstWeight}
-          disabled={
-            savingFirstWeight ||
-            firstWeightSaved
-          }
-          className="
+            <button
+              type="button"
+              onClick={handleSaveFirstWeight}
+              disabled={savingFirstWeight || firstWeightSaved}
+              className="
             w-full
             py-2
             rounded-md
@@ -239,42 +249,20 @@ export default function StampForm() {
             hover:bg-blue-700
             disabled:bg-gray-400
           "
-        >
-          {firstWeightSaved
-            ? "✓ First Weight Saved"
-            : savingFirstWeight
-            ? "Saving..."
-            : "Save 1st Weight"}
-        </button>
+            >
+              {firstWeightSaved
+                ? "✓ First Weight Saved"
+                : savingFirstWeight
+                  ? "Saving..."
+                  : "Save 1st Weight"}
+            </button>
 
-        {/* GET FIRST WEIGHT */}
+            {/* GENERATE */}
 
-        <button
-          type="button"
-          onClick={handleGetFirstWeight}
-          disabled={gettingFirstWeight}
-          className="
-            w-full
-            py-2
-            rounded-md
-            font-medium
-            bg-orange-500
-            text-white
-            hover:bg-orange-600
-            disabled:bg-gray-400
-          "
-        >
-          {gettingFirstWeight
-            ? "Loading..."
-            : "Get 1st Weight"}
-        </button>
-
-        {/* GENERATE */}
-
-        <button
-          type="submit"
-          disabled={generatingStamp}
-          className="
+            <button
+              type="submit"
+              disabled={generatingStamp}
+              className="
             w-full
             py-2
             rounded-md
@@ -284,22 +272,12 @@ export default function StampForm() {
             hover:bg-gray-900
             disabled:bg-gray-400
           "
-        >
-          {generatingStamp
-            ? "Generating..."
-            : "Print"}
-        </button>
-
+            >
+              {generatingStamp ? "Generating..." : "Save & Print"}
+            </button>
+          </div>
+        </form>
       </div>
-
-    </form>
-  </div>
-</div>
-
-
-
-
-
-
+    </div>
   );
 }

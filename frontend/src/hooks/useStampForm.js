@@ -181,51 +181,89 @@ export default function useStampForm() {
 };
 
 
-  const handleGetFirstWeight = async () => {
-    if (!formData.Sr_No) {
-      alert("Enter Sr No");
-      return;
-    }
+  // const handleGetFirstWeight = async () => {
+  //   if (!formData.Sr_No) {
+  //     alert("Enter Sr No");
+  //     return;
+  //   }
 
-    try {
-      setGettingFirstWeight(true);
+  //   try {
+  //     setGettingFirstWeight(true);
 
-      const product = await getFirstWeight(formData.Sr_No);
+  //     const product = await getFirstWeight(formData.Sr_No);
 
-      setFormData((prev) => ({
-        ...prev,
+  //     setFormData((prev) => ({
+  //       ...prev,
 
-        Sr_No: product.Sr_No,
+  //       Sr_No: product.Sr_No,
 
-        vehicle: product.vehicle || "",
+  //       vehicle: product.vehicle || "",
 
-        Party: product.Party || "",
+  //       Party: product.Party || "",
 
-        Product: product.Product || "",
+  //       Product: product.Product || "",
 
-        ProductId: product.ProductId || "",
+  //       ProductId: product.ProductId || "",
 
-        Gross: product.Gross || "",
+  //       Gross: product.Gross || "",
 
-        Cash: product.Cash || "",
-      }));
+  //       Cash: product.Cash || "",
+  //     }));
 
-      setFirstWeightSaved(true);
+  //     setFirstWeightSaved(true);
 
-      // No success alert
-    } catch (error) {
-      console.error(error);
+  //     // No success alert
+  //   } catch (error) {
+  //     console.error(error);
 
-      alert(error.response?.data?.message || "First weight not found");
-    } finally {
-      setGettingFirstWeight(false);
-    }
-  };
+  //     alert(error.response?.data?.message || "First weight not found");
+  //   } finally {
+  //     setGettingFirstWeight(false);
+  //   }
+  // };
 
   // ==================================================
   // GENERATE STAMP
   // ==================================================
 
+
+
+  const handleGetFirstWeight = async (srNo) => {
+  if (!srNo) {
+    alert("Enter Sr No");
+    return;
+  }
+
+  try {
+    setGettingFirstWeight(true);
+
+    const product = await getFirstWeight(srNo);
+
+    setFormData((prev) => ({
+      ...prev,
+      Sr_No: product.Sr_No,
+      vehicle: product.vehicle || "",
+      Party: product.Party || "",
+      Product: product.Product || "",
+      ProductId: product.ProductId || "",
+      Gross: product.Gross ?? "",
+      Cash: product.Cash ?? "",
+    }));
+
+    setFirstWeightSaved(true);
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      error.response?.data?.message ||
+        "First weight not found"
+    );
+  } finally {
+    setGettingFirstWeight(false);
+  }
+  };
+
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
