@@ -27,10 +27,10 @@ const products = {
   26: "ALLO",
   27: "BAJRI",
   28: "GOVARA",
-    29: "WATERMELON",
-     30: "CHILKA",
-     31: "KOLA",
-     32: "ANIMAL",
+  29: "WATERMELON",
+  30: "CHILKA",
+  31: "KOLA",
+  32: "ANIMAL",
 };
 
 export default products;
