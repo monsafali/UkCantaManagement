@@ -167,29 +167,6 @@ export default function UsersTable({
                         <Eye size={17} />
                       </button>
 
-                      {/* Toggle */}
-
-                      <button
-                        onClick={() =>
-                          onToggle(user)
-                        }
-                        title={
-                          user.isActive
-                            ? "Deactivate"
-                            : "Activate"
-                        }
-                        className={`p-2 rounded-lg ${
-                          user.isActive
-                            ? "bg-orange-50 text-orange-600 hover:bg-orange-100"
-                            : "bg-green-50 text-green-600 hover:bg-green-100"
-                        }`}
-                      >
-                        {user.isActive ? (
-                          <UserX size={17} />
-                        ) : (
-                          <UserCheck size={17} />
-                        )}
-                      </button>
 
                       {/* Delete */}
 

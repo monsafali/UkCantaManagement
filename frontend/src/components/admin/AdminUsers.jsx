@@ -67,25 +67,6 @@ export default function AdminUsers() {
     getAllUsers();
   }, [getAllUsers]);
 
-  // ==========================================
-  // TOGGLE USER
-  // ==========================================
-
-  const handleToggle = async (user) => {
-    const action = user.isActive
-      ? "deactivate"
-      : "activate";
-
-    if (
-      !window.confirm(
-        `Are you sure you want to ${action} ${user.fullname}?`
-      )
-    ) {
-      return;
-    }
-
-    await toggleUserStatus(user._id);
-  };
 
   // ==========================================
   // DELETE USER
@@ -135,7 +116,6 @@ export default function AdminUsers() {
         users={users}
         loading={usersLoading}
         onCreate={() => setCreateOpen(true)}
-        onToggle={handleToggle}
         onDelete={handleDelete}
         onPerformance={handlePerformance}
       />
